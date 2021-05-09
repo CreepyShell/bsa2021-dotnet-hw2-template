@@ -36,13 +36,6 @@ namespace CoolParking
             service = new ParkingService(true);
             DisplayMainMessage();
             MainMethod();
-            //ParkingService service = new ParkingService(false);
-            //service.AddVehicle(new Vehicle("XX-1234-YY", VehicleType.Bus, 100));
-            //service.AddVehicle(new Vehicle("XX-1234-YX", VehicleType.Truck, 100));
-            //TimeService time = new TimeService();
-            //time.FireElapsedEvent();
-            //time.FireElapsedEvent();
-
 
         }
         static void MainMethod()

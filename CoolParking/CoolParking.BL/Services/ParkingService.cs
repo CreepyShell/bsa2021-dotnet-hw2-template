@@ -29,6 +29,7 @@ namespace CoolParking.BL.Services
         public ParkingService(ITimerService withdrawTimer, ITimerService logTimer, ILogService logService)
         {
             LogFileService = logService;
+            withdrawTimer.Elapsed += (sender, e) => new TimeService().GetMoney(sender, e);
             WithdrawTimer = withdrawTimer;
         }        
         public void AddVehicle(Vehicle vehicle)
@@ -84,8 +85,7 @@ namespace CoolParking.BL.Services
         public int GetFreePlaces() => Park.ParkingPlaces.Where(Park => Park.Value).Count();
 
         public TransactionInfo[] GetLastParkingTransactions()
-        {
-            
+        {          
             return Park.TransactionInfos.ToArray();
         }
 
