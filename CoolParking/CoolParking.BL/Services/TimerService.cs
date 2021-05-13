@@ -20,16 +20,13 @@ namespace CoolParking.BL.Services
         public Timer TimerLog { get; set; }
         public TimeService()
         {
-           
-            Elapsed += (sender, e) => GetMoney(sender, e);
             LogService = new LogService(Settings.LogPath);
         }
         public void Dispose()
         {
-            if (TimerPay != null)
-                TimerPay.Dispose();
-            if (TimerLog != null)
-                TimerLog.Dispose();
+            TimerPay?.Dispose();
+            TimerLog?.Dispose();
+            ((LogService)LogService).Dispose();
         }
 
         public void Start()
@@ -49,18 +46,14 @@ namespace CoolParking.BL.Services
 
         public void Stop()
         {
-            if (TimerPay != null)
-            {
-                TimerPay.Stop();
-            }
-            if (TimerLog != null)
-                TimerLog.Stop();
+            TimerPay?.Stop();
+            TimerLog?.Stop();
         }
         public void FireElapsedEvent()
         {
             Elapsed?.Invoke(this, null);
         }
-        private void GetMoney(object sender, ElapsedEventArgs e)
+        public void GetMoney(object sender, ElapsedEventArgs e)
         {
             var Vehicles = parking.Vehicles;
             for (int i = 0; i < parking.Vehicles.Count; i++)
@@ -77,14 +70,16 @@ namespace CoolParking.BL.Services
                 {
                     parking.TransactionInfos.Add(new TransactionInfo(Vehicles[i].Balance, Vehicles[i].Id, System.DateTime.Now));
                     decimal LessZero = Settings.Bill(Vehicles[i].VehicleType) - Vehicles[i].Balance;//вираховуємо гроші по яким будет платитися штраф
-                    parking.Balance += Vehicles[i].Balance;//весь баланс боржника переходить до балансу паркінгу
-                    parking.CurentBalance += Vehicles[i].Balance;
+                    parking.Balance += Vehicles[i].Balance + LessZero * 2.5m; ;//весь баланс боржника переходить до балансу паркінгу
+                    parking.CurentBalance += Vehicles[i].Balance + LessZero * 2.5m;
                     Vehicles[i].Balance -= LessZero * Settings.Fine + Vehicles[i].Balance;//вираховуємо баланс боржника
                     continue;
                 }
                 Vehicles[i].Balance -= Settings.Bill(Vehicles[i].VehicleType) * Settings.Fine;
+                parking.Balance += Settings.Bill(Vehicles[i].VehicleType) * Settings.Fine;
+                parking.CurentBalance += Settings.Bill(Vehicles[i].VehicleType) * Settings.Fine;
             }
-            
+
         }
         private void LogTransactions(object sender, ElapsedEventArgs e)
         {

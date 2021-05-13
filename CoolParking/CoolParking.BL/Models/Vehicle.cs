@@ -7,15 +7,24 @@
 //       Static method GenerateRandomRegistrationPlateNumber should return a randomly generated unique identifier.
 
 using System;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace CoolParking.BL.Models
 {
     public class Vehicle
     {
+        public Vehicle() { }
+        [JsonIgnore]
         public int ParkingPlaceNumber { get; set; }
+
+        [JsonPropertyName("id")]
         public string Id { get; private set; }
+
+        [JsonPropertyName("vehicleType")]
         public VehicleType VehicleType { get; private set; }
+
+        [JsonPropertyName("balance")]
         public decimal Balance { get; set; }
         public Vehicle(string id, VehicleType vehicle, decimal money)
         {

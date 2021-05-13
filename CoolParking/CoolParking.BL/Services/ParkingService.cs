@@ -17,7 +17,9 @@ namespace CoolParking.BL.Services
         private Parking Park { get; set; } = Parking.GetParking();
         public ILogService LogFileService { get; set; }
         ITimerService WithdrawTimer { get; set; }
-        public ParkingService(bool IsStartTimer) {
+        public ParkingService() { }
+        public ParkingService(bool IsStartTimer)
+        {
             if (IsStartTimer)
             {
                 WithdrawTimer = new TimeService();
@@ -29,18 +31,19 @@ namespace CoolParking.BL.Services
         public ParkingService(ITimerService withdrawTimer, ITimerService logTimer, ILogService logService)
         {
             LogFileService = logService;
+            withdrawTimer.Elapsed += (sender, e) => new TimeService().GetMoney(sender, e);
             WithdrawTimer = withdrawTimer;
-        }        
+        }
         public void AddVehicle(Vehicle vehicle)
         {
 
-            if (Park.Vehicles.Count > Settings.AmountPlaces)
+            if (Park.Vehicles.Count >= Settings.AmountPlaces)
                 throw new System.InvalidOperationException("Try to add auto on full parking");
             if (IsNotEqualId(vehicle.Id))
             {
                 Park.Vehicles.Add(vehicle);
-                Park.ParkingPlaces[Park.GetFreeParkingPlace()] = false;//місце зайнято
                 vehicle.ParkingPlaceNumber = Park.GetFreeParkingPlace();
+                Park.ParkingPlaces[Park.GetFreeParkingPlace()] = false;//місце зайнято
                 return;
             }
             throw new System.ArgumentException("Auto with this id is already stay on cool parking");
@@ -54,7 +57,8 @@ namespace CoolParking.BL.Services
             for (int i = 0; i < Settings.AmountPlaces; i++)
                 Park.ParkingPlaces.Add(i, true);
             Park.Vehicles.Clear();
-            WithdrawTimer.Dispose();
+            WithdrawTimer?.Dispose();
+            Park.TransactionInfos.Clear();
             if (System.IO.File.Exists(Settings.LogPath))
                 System.IO.File.Delete(Settings.LogPath);
             System.GC.Collect();
@@ -85,7 +89,6 @@ namespace CoolParking.BL.Services
 
         public TransactionInfo[] GetLastParkingTransactions()
         {
-            
             return Park.TransactionInfos.ToArray();
         }
 
@@ -122,7 +125,6 @@ namespace CoolParking.BL.Services
             if (vehicle != null)
             {
                 vehicle.Balance += sum;
-                System.Console.WriteLine("This transport have " + vehicle.Balance);
                 return;
             }
             throw new System.ArgumentException("Id is not right");
