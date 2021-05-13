@@ -21,7 +21,8 @@ namespace CoolParking.BL.Services
         public string LogPath { get { return logFilePath; } }
         public void Dispose()
         {
-            File.Delete(logFilePath);
+            if (File.Exists(logFilePath))
+                File.Delete(logFilePath);
         }
         public string Read()
         {

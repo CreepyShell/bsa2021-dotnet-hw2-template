@@ -1,10 +1,32 @@
 ﻿using System;
 using CoolParking.BL.Models;
 using CoolParking.BL.Services;
+using System.Linq;
+using System.Net.Http;
+using CoolParkingConsole;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Text.Json;
+using CoolParkingConsole.ClientModels;
+
 namespace CoolParking
 {
     class Program
     {
+        static readonly Parking parking = Parking.GetParking();
+        static readonly ParkingService service;
+        static void Main(string[] args)
+        {
+            //service = new ParkingService(true);
+            //DisplayMainMessage();
+            //MainMethod();
+            Console.WriteLine(ParkingServiceHTTPMethods.AddVehicle(new VehicleClient() {
+                Id ="XX-1111-XX",
+                Balance = 1000,
+                VehicleType = 3
+            }).Result);
+            Console.ReadLine();
+        }
         static void DisplayMainMessage()
         {
             Console.WriteLine("Enter a number what have to do:\n" +
@@ -20,8 +42,7 @@ namespace CoolParking
                "10:Clear console and come back)\n" +
                "11:Exit program\n");
         }
-        static Parking parking = Parking.GetParking();
-        static ParkingService service;
+        
         static string GetNormalStringOfTransactions()
         {
             string rez = "";
@@ -31,13 +52,7 @@ namespace CoolParking
             }
             return rez;
         }
-        static void Main(string[] args)
-        {
-            service = new ParkingService(true);
-            DisplayMainMessage();
-            MainMethod();
-
-        }
+        
         static void MainMethod()
         {
 
@@ -107,6 +122,10 @@ namespace CoolParking
                         Console.WriteLine("Entered incorrect number, try again");
                         break;
                 }
+            }
+            catch(AggregateException ex)
+            {
+                Console.WriteLine("Server is turned off");
             }
             catch (ArgumentException ex)
             {

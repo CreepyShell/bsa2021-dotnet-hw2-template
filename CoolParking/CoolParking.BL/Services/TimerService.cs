@@ -20,16 +20,13 @@ namespace CoolParking.BL.Services
         public Timer TimerLog { get; set; }
         public TimeService()
         {
-           
-            Elapsed += (sender, e) => GetMoney(sender, e);
             LogService = new LogService(Settings.LogPath);
         }
         public void Dispose()
         {
-            if (TimerPay != null)
-                TimerPay.Dispose();
-            if (TimerLog != null)
-                TimerLog.Dispose();
+            TimerPay?.Dispose();
+            TimerLog?.Dispose();
+            ((LogService)LogService).Dispose();
         }
 
         public void Start()
@@ -49,12 +46,8 @@ namespace CoolParking.BL.Services
 
         public void Stop()
         {
-            if (TimerPay != null)
-            {
-                TimerPay.Stop();
-            }
-            if (TimerLog != null)
-                TimerLog.Stop();
+            TimerPay?.Stop();
+            TimerLog?.Stop();
         }
         public void FireElapsedEvent()
         {
@@ -86,7 +79,7 @@ namespace CoolParking.BL.Services
                 parking.Balance += Settings.Bill(Vehicles[i].VehicleType) * Settings.Fine;
                 parking.CurentBalance += Settings.Bill(Vehicles[i].VehicleType) * Settings.Fine;
             }
-            
+
         }
         private void LogTransactions(object sender, ElapsedEventArgs e)
         {
